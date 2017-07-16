@@ -2,9 +2,25 @@ from flask_wtf import Form
 from wtforms import PasswordField
 from wtforms import SubmitField
 from wtforms.fields.html5 import EmailField
-from wtforms import TextField
-from wtforms import validators
-from wtforms import SelectField
+from wtforms import TextField, validators, SelectField
+from flask_wtf import Form, RecaptchaField
+from wtforms import (
+    widgets,
+    StringField,
+    TextAreaField,
+    PasswordField,
+    BooleanField
+)
+from wtforms.validators import DataRequired, Length, EqualTo, URL
+
+class CKTextAreaWidget(widgets.TextArea):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('class_', 'ckeditor')
+        return super(CKTextAreaWidget, self).__call__(field, **kwargs)
+
+
+class CKTextAreaField(TextAreaField):
+    widget = CKTextAreaWidget()
 
 
 class RegistrationForm(Form):
