@@ -1,18 +1,15 @@
 import os
-from flask import Flask, url_for, redirect, render_template, request
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import Flask, url_for, redirect, render_template, request, abort
+from flask_sqlalchemy import SQLAlchemy
 from wtforms import form, fields, validators
-from flask.ext import admin, login
-from flask.ext.admin.contrib import sqla
-from flask.ext.admin import helpers, expose
+import flask_admin as admin
+import flask_login as login
+from flask_admin.contrib import sqla
+from flask_admin import helpers, expose
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlalchemy
-from sqlalchemy import Column, Integer, CHAR, String
+from flask_login import login_required
+
 # Create Flask application
-import sqlalchemy.ext.declarative as dec
-
-SqlAlchemyBase = dec.declarative_base()
-
 app = Flask(__name__)
 
 # Create dummy secrey key so we can use sessions
@@ -27,16 +24,14 @@ db = SQLAlchemy(app)
 
 # Create user model.
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     login = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120))
     password = db.Column(db.String(64))
-
-    # company_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('company.uid'))
-    company = sqlalchemy.orm.relationship('company', back_populates='User')
-    User = sqlalchemy.orm.relationship('User', back_populates='company')
+    companyid = db.relationship('companyuser', backref='user',
+                                lazy='dynamic')
 
     # Flask-Login integration
     def is_authenticated(self):
@@ -53,44 +48,53 @@ class User(db.Model):
 
     # Required for administrative interface
     def __unicode__(self):
-        return self.username
+        return self.first_name
 
-class company(db.Model):
-    __tablename__ = "company"
-    uid = Column(Integer, primary_key=True, autoincrement=True)
-    companyname = Column(CHAR(100))
-    address = Column(CHAR(100))
-    city = Column(CHAR(100))
-    postalcode = Column(CHAR(6))
-    phonenumber = Column(CHAR(20))
-    # user_id = Column(Integer, sqlalchemy.ForeignKey('User.id'))
-    # user = sqlalchemy.orm.relationship("User", backref="company")
-    user = sqlalchemy.orm.relationship('User', back_populates='company')
-    # user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('user.id'))
+    #shows the actual value instead of an object
 
-        # def __init__(self, companyname, address, city, postalcode, phonenumber, user_id):
-        #     self.companyname = companyname
-        #     self.address = address
-        #     self.city = city
-        #     self.postalcode = postalcode
-        #     self.phonenumber = phonenumber
-        #     self.user_id=user_id
+    def __str__(self):
+        return str(self.email)
 
-        # self.company_id = company_id
+class Person(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    addresses = db.relationship('company1', backref='person',
+                                lazy='dynamic')
+    eld = db.relationship('ELD', backref='person',
+                          lazy='dynamic')
 
-class driver(db.Model):
-    __tablename__ = 'drivers'
-    uid = Column(db.Integer, primary_key=True)
-    company_id = Column(Integer, sqlalchemy.ForeignKey('company.uid'))
-    firstname = Column(String(20))
-    lastname = Column(String(20))
-    driverslicense = Column(String(25))
-    driverslicensestate = Column(String(2))
+class company1(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    email = db.Column(db.String(50))
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+
+    def __str__(self):
+        return self.name
+
+
+class companyuser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(50))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __str__(self):
+        return self.email
+
+class ELD(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    RPM = db.Column(db.String(50))
+    Longitude = db.Column(db.String(50))
+    Latitide = db.Column(db.String(50))
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+    def __str__(self):
+        return self.name
+
 
 
 # Define login and registration forms (for flask-login)
 class LoginForm(form.Form):
-    login = fields.TextField(validators=[validators.required()])
+    login = fields.StringField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
 
     def validate_login(self, field):
@@ -110,8 +114,8 @@ class LoginForm(form.Form):
 
 
 class RegistrationForm(form.Form):
-    login = fields.TextField(validators=[validators.required()])
-    email = fields.TextField()
+    login = fields.StringField(validators=[validators.required()])
+    email = fields.StringField()
     password = fields.PasswordField(validators=[validators.required()])
 
     def validate_login(self, field):
@@ -131,10 +135,26 @@ def init_login():
 
 
 # Create customized model view class
+# class MyModelView(sqla.ModelView):
+#
+#     def is_accessible(self):
+#         return login.current_user.is_authenticated
 class MyModelView(sqla.ModelView):
-
     def is_accessible(self):
         return login.current_user.is_authenticated
+
+    def _handle_view(self, name, **kwargs):
+        """
+        Override builtin _handle_view in order to redirect users when a view is not accessible.
+        """
+        if not self.is_accessible():
+            if login.current_user.is_authenticated:
+                # permission denied
+                abort(403)
+            else:
+                # login
+                return redirect(url_for('security.login', next=request.url))
+
 
 
 # Create customized index view class that handles login & registration
@@ -194,6 +214,29 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/showuser')
+def showuser():
+    try:
+        data = login.current_user.get_id()
+        data = db.session.query(ELD.RPM, ELD.id).filter(ELD.person_id==1).all()
+        print(data)
+    except Exception as e:
+        print("Failed test 1")
+
+    return render_template('showuser.html', data = data)
+
+@app.route('/showdata')
+def showdata():
+    try:
+        data = login.current_user.get_id()
+        data = db.session.query(companyuser.email).filter(companyuser.user_id == data).all()
+        print(data)
+    except Exception as e:
+        print("Failed test 1")
+
+    return render_template('showuser.html', data = data)
+
+
 # Initialize flask-login
 init_login()
 
@@ -201,9 +244,12 @@ init_login()
 admin = admin.Admin(app, 'Example: Auth', index_view=MyAdminIndexView(), base_template='my_master.html')
 
 # Add view
-# admin.add_view(MyModelView(User, db.session))
-admin.add_view(PersonAdmin(Person, db.session))
-admin.add_view(sqla.ModelView(Pet, db.session))
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Person, db.session))
+admin.add_view(MyModelView(companyuser, db.session))
+admin.add_view(MyModelView(company1, db.session))
+admin.add_view(MyModelView(ELD, db.session))
+
 
 def build_sample_db():
     """
@@ -252,4 +298,4 @@ if __name__ == '__main__':
         build_sample_db()
 
     # Start app
-    app.run(debug=True, port = 1111)
+    app.run(debug=True)
