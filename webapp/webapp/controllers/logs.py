@@ -13,6 +13,8 @@ logs_blueprint = Blueprint(
 	)
 
 
+
+@login_required
 @logs_blueprint.route('/')
 @logs_blueprint.route('/create-driver', methods = ['GET', 'POST'])
 def createdriver():
@@ -24,8 +26,67 @@ def createdriver():
     drivers = driver(firstname, lastname, driverslicense, driverslicensestate)
     db.session.add(drivers)
     db.session.commit()
-    if form.errors:
-        flash(form.errors, 'danger')
-    else:
-        flash("Driver Added")
+    # if form.errors:
+    #     flash(form.errors, 'danger')
+    # else:
+    #     flash("Driver Added")
     return render_template('create-driver.html', form=form)
+
+
+
+
+@logs_blueprint.route('/')
+@logs_blueprint.route('/update-driver', methods = ['GET', 'POST'])
+def updatedriver():
+    form = DriverForm(request.form)
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    driverslicense = request.form.get('driverslicense')
+    driverslicensestate = request.form.get('driverslicensestate')
+    drivers = driver(firstname, lastname, driverslicense, driverslicensestate)
+    db.session.add(drivers)
+    db.session.commit()
+    # if form.errors:
+    #     flash(form.errors, 'danger')
+    # else:
+    #     flash("Driver Added")
+    return render_template('create-driver.html', form=form)
+
+
+
+@logs_blueprint.route('/')
+@logs_blueprint.route('/delete-driver', methods = ['GET', 'POST'])
+def deletedriver():
+    form = DriverForm(request.form)
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    driverslicense = request.form.get('driverslicense')
+    driverslicensestate = request.form.get('driverslicensestate')
+    drivers = driver(firstname, lastname, driverslicense, driverslicensestate)
+    db.session.add(drivers)
+    db.session.commit()
+    # if form.errors:
+    #     flash(form.errors, 'danger')
+    # else:
+    #     flash("Driver Added")
+    return render_template('create-driver.html', form=form)
+
+
+
+@logs_blueprint.route('/')
+@logs_blueprint.route('/read-driver', methods = ['GET', 'POST'])
+def readdriver():
+    form = DriverForm(request.form)
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    driverslicense = request.form.get('driverslicense')
+    driverslicensestate = request.form.get('driverslicensestate')
+    drivers = driver(firstname, lastname, driverslicense, driverslicensestate)
+    db.session.add(drivers)
+    db.session.commit()
+    # if form.errors:
+    #     flash(form.errors, 'danger')
+    # else:
+    #     flash("Driver Added")
+    return render_template('create-driver.html', form=form)
+

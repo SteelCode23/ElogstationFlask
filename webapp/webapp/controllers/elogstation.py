@@ -17,3 +17,27 @@ def home(page=1):
     return render_template(
         'home.html', page = page
     )
+
+
+
+@elogstation_blueprint.route('/home')
+def landingpage(page=1):
+    return render_template(
+        'landingpage.html'
+    )
+
+
+@elogstation_blueprint.route('/register', methods = ['POST','GET'])
+def register():
+    return render_template(
+        'elogstationexample.html'
+    )
+
+
+
+@elogstation_blueprint.route('/register2')
+def register2():
+    return render_template(
+        'register2.html'
+    )
+

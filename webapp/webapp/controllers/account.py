@@ -16,3 +16,17 @@ def home(page=1):
     return render_template(
         'home.html', number = page
     )
+
+
+
+@account_blueprint.route('/login')
+def login():
+
+    return render_template(
+        'home.html'
+    )
+
+
+
+
+
