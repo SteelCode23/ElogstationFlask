@@ -18,6 +18,7 @@ from .controllers.dvir import dvir_blueprint
 from .controllers.logs import logs_blueprint
 from .controllers.trucks import trucks_blueprint
 from .controllers.elogstation import elogstation_blueprint
+from .controllers.rest.eld import ELDAPI
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask import Flask
 
@@ -202,7 +203,12 @@ def create_app(object_name):
     oid.init_app(app)
     login_manager.init_app(app)
     principals.init_app(app)
+    
+
     # db.create_all()
+    rest_api.add_resource(ELDAPI, '/api/eld')
+    #rest_api.add_resource(ELDAPI, '/api/post')
+    rest_api.init_app(app)
 
     app.register_blueprint(account_blueprint)
     app.register_blueprint(drivers_blueprint)
@@ -213,7 +219,7 @@ def create_app(object_name):
     # Create admin
     import flask_admin as admin1
 
-    admin = admin1.Admin(app, 'Example: Auth', index_view=MyAdminIndexView(), base_template='my_master.html')
+    admin = admin1.Admin(app, 'Example: Auth', index_view=MyAdminIndexView(), base_template='layout.html')
     # Add view
     admin.add_view(MyModelView(User, db.session))
     admin.add_view(MyModelView(Person, db.session))

@@ -84,7 +84,7 @@ class DVIRForm(Form):
     SuspensionSystem = BooleanField('SuspensionSystem')
     CouplingDevices = BooleanField('CouplingDevices')
     Lamps= BooleanField('Lamps')
-    DangerousGoods = BooleanField('DangerousGoods')
+    ExhaustSystem = BooleanField('ExhaustSystem')
     ExhaustSystem = BooleanField('ExhaustSystem')
     Frameandcargo = BooleanField('Frameandcargo')
     cargosecurement = BooleanField('cargosecurement')
