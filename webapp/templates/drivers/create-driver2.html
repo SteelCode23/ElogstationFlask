@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends base.html %}
 
 {% block content %}
   <div class="top-pad">
     <form
         method="POST"
-        action="/drivers/create-driver"
+        action="/create-driver"
         role="form">
       {{ form.csrf_token }}
       <div class="form-group">{{ form.firstname.label }}: {{ form.firstname() }}</div>
@@ -17,3 +17,4 @@
   </div>
 {% endblock %}
 
+{% endblock %}

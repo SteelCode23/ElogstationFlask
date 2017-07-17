@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(100))
     login = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120))
-    password = db.Column(db.String(64))
+    password = db.Column(db.String(1000))
     username = db.Column(db.String(64))
 
     # Flask-Login integration
@@ -193,12 +193,14 @@ class Reminder(db.Model):
 class drivers(db.Model):
     __tablename__ = 'drivers'
     uid = Column(db.Integer, primary_key=True, autoincrement=True)
+    company_id = Column(Integer, sqlalchemy.ForeignKey('company.uid'))
     firstname = Column(String(20))
     lastname = Column(String(20))
     driverslicense = Column(String(25))
     driverslicensestate = Column(String(2))
 
-    def __init__(self, firstname, lastname, driverslicense, driverslicensestate):
+    def __init__(self, company_id, firstname, lastname, driverslicense, driverslicensestate):
+        self.company_id = company_id
         self.firstname = firstname
         self.lastname = lastname
         self.driverslicense = driverslicense
@@ -214,6 +216,9 @@ class company(db.Model):
     postalcode = Column(CHAR(6))
     phonenumber = Column(CHAR(20))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return "'{}''{}''{}''{}'".format(self.companyname, self.address, self.city, self.postalcode)
 
     # def __init__(self, companyname, address, city, postalcode, phonenumber, user_id):
     #     self.companyname = companyname
@@ -244,16 +249,28 @@ class RPM(db.Model):
     longitude = Column(Integer)
     latitude = Column(Integer)
     datetimestamp = Column(Time(100))
+    def __repr__(self):
+        return '<RPM {}>'.format(self.rpm)
 
         
 class truck(db.Model):
     __tablename__ = 'truck'
-    uid = Column(Integer, primary_key = True)
+    uid = Column(Integer, primary_key = True, autoincrement=True)
     company_id = Column(Integer, sqlalchemy.ForeignKey('company.uid'))
     unit = Column(String(20))
     LicensePlate = Column(String(20))
     State_province = Column(String(20))
     VIN = Column(String(20))
+    def __repr__(self):
+        return '"Unit":"{}", "LicensePlate":"{}","State_province":"{}"'.format(self.unit, self.LicensePlate, self.State_province)
+
+    def __init__(self, company_id, unit, LicensePlate, State_province, VIN):
+        self.company_id = company_id
+        self.unit = unit
+        self.LicensePlate = LicensePlate
+        self.State_province = State_province
+        self.VIN = VIN
+
    
 
 class DVIR(db.Model):
@@ -316,7 +333,6 @@ class DVIR(db.Model):
         self.SuspensionSystem  =  SuspensionSystem 
         self.CouplingDevices  =  CouplingDevices 
         self.Lamps =  Lamps
-        self.DangerousGoods  =  DangerousGoods 
         self.ExhaustSystem  =  ExhaustSystem 
         self.Frameandcargo  =  Frameandcargo 
         self.cargosecurement  =  cargosecurement 
@@ -329,6 +345,8 @@ class DVIR(db.Model):
         self.LocationofInspection  =  LocationofInspection 
         self.TrailerLicensePlate  =  TrailerLicensePlate 
         self.InspectorName  =  InspectorName 
+    def __repr__(self):
+        return '<Truck {}>'.format(self.DriverController)
 
 
 # class ELD(db.Model):
