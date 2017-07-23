@@ -1,0 +1,38 @@
+body {
+  padding-top: 50px;
+}
+.top-pad {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+div.b-container {
+  position: relative;
+  padding-top: 100em;
+  margin-top: 70px;
+}
+
+.center
+{
+    left: 50%;
+    position: absolute;
+    top: 50%;
+}
+
+.center div
+{
+    border: 1px solid black;
+    margin-left: -50%;
+    margin-top: -50%;
+    height: 100px;
+    width: 100px;
+}
+
+.center1 div
+{
+    border: 1px solid black;
+    margin-left: -70%;
+    margin-top: -60%;
+    height: 100px;
+    width: 100px;
+}
