@@ -1,7 +1,7 @@
 from flask.ext.restful import Resource
 from flask import abort, current_app
 from flask.ext.restful import Resource
-from webapp.models import User, RPM, db
+from webapp1.models import User, RPM, db
 from .parsers2 import eld_post_parser, user_data_parser, eld_get_parser
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import datetime
@@ -13,8 +13,8 @@ eld_fields = {
 	'user_id':fields.Integer(),
     'rpm': fields.Integer(),
 	# 'daterecorded':fields.DateTime(dt_format='rfc822'),
-	'longitude':fields.Integer(),
-	'latitude':fields.Integer()
+	'longitude':fields.Float(),
+	'latitude':fields.Float()
 
 }
 
@@ -46,7 +46,15 @@ class ELDAPI(Resource):
 		else:
 			print("Success")
 		print(args)
-		rpm = RPM(company_id=args['company_id'], user_id=args['user_id'], rpm=args['rpm'], longitude=args['longitude'], latitude=args['longitude'], datetimestamp=datetime.datetime.now(),
-				  daterecorded=args['daterecorded'])
-
+		try:
+			latitude = args['latitude'][0]
+		except Exception as e:
+			latitude = 0
+		try:
+			rpm = args['rpm'][0]
+		except Exception as e:
+			rpm = 0
+		rpm = RPM(company_id=args['company_id'], user_id=args['user_id'], rpm=rpm, longitude=args['longitude'], latitude=latitude)
+		db.session.add(rpm)
+		db.session.commit()
 		return {"result":args}

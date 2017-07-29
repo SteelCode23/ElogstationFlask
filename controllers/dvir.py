@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, request
 from flask.ext.login import login_required, current_user
 from flask.ext.principal import Permission, UserNeed
-from webapp.models import DVIR, db
-from webapp.forms import DVIRForm
+from webapp1.models import DVIR, db
+from webapp1.forms import DVIRForm
 dvir_blueprint = Blueprint(
 	'dvir',
 	__name__,

@@ -1,6 +1,6 @@
 from flask import abort, current_app
 from flask.ext.restful import Resource
-from webapp.models import User
+from webapp1.models import User
 from .parsers import user_post_parser
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import URLSafeSerializer

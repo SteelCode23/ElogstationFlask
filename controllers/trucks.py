@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, abort, request
 from flask.ext.login import login_required, current_user
 from flask.ext.principal import Permission, UserNeed
 
-from webapp.forms import TruckForm
-from webapp.models import truck, db, User, company
+from webapp1.forms import TruckForm
+from webapp1.models import truck, db, User, company
 trucks_blueprint = Blueprint(
 	'trucks',
 	__name__,

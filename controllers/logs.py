@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, request, jsonify
 from flask.ext.login import login_required, current_user
 from flask.ext.principal import Permission, UserNeed
-from webapp.extensions import poster_permission, admin_permission
-from webapp.forms import DriverForm, ElogForm, EmailServicesForm, BluetoothServicesForm, USBServicesForm, WIFIservicesForm
-from webapp.models import drivers, db, RPM
-import pypyodbc
+from webapp1.extensions import poster_permission, admin_permission
+from webapp1.forms import DriverForm, ElogForm, EmailServicesForm, BluetoothServicesForm, USBServicesForm, WIFIservicesForm
+from webapp1.models import drivers, db, RPM, User
+
 
 from sqlalchemy import update
 import random
@@ -32,6 +32,25 @@ def createdriver():
         db.session.rollback()
     if not current_user.is_authenticated:
         return redirect(url_for('admin.login_view'))
+    try:
+        role = db.session.query(User.roleid).filter_by[User.id==current_user.get_id()]
+        print(current_user.get_role())
+    except Exception as e:
+        print("Error 1")
+        print(e)
+    try:
+        print(current_user.get_role)
+        print(current_user.get_id())
+    except Exception as e:
+        print("Error 2")
+    try:
+        role = User.query.filter_by(id=current_user.get_id()).all()
+        print(User.query.all())
+
+        print(role)
+    except Exception as e:
+        print("Error 3")
+        print(e)
     return render_template('create-driver.html', form=form)
 
 
@@ -111,7 +130,7 @@ def logs():
 
     if not current_user.is_authenticated:
         return redirect(url_for('admin.login_view'))
-    return render_template('logs.html', form=form, elog=elog, xdata = xdata, data = data)
+    return render_template('logs.html', form=form, elog=elog, xdata = xdata, data = data, datedata = date)
 
 
 #AJAX
@@ -121,7 +140,10 @@ def driving():
     a = request.args.get('a', 0, type=int)
     b = request.args.get('b', 0, type=int)
     print("Driving")
-    db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [1,current_user.get_id()])
+    try:
+        db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [1,current_user.get_id()])
+    except Exception as e:
+        print(e)
     return jsonify(result= "Driving")
 
 
@@ -131,7 +153,10 @@ def onduty():
     a = request.args.get('a', 0, type=int)
     b = request.args.get('b', 0, type=int)
     print("on duty")
-    db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [2, current_user.get_id()])
+    try:
+        db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [2, current_user.get_id()])
+    except Exception as e:
+        print(e)
     return jsonify(result= "On Duty")
 
 
@@ -140,7 +165,10 @@ def sleeping():
     """Add two numbers server side, ridiculous but well..."""
     a = request.args.get('a', 0, type=int)
     b = request.args.get('b', 0, type=int)
-    db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [3, current_user.get_id()])
+    try:
+        db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [3, current_user.get_id()])
+    except Exception as e:
+        print(e)
     print("Sleep")
     return jsonify(result= "Sleeping")
 
@@ -150,7 +178,10 @@ def offduty():
     """Add two numbers server side, ridiculous but well..."""
     a = request.args.get('a', 0, type=int)
     b = request.args.get('b', 0, type=int)
-    db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [4, current_user.get_id()])
+    try:
+        db.engine.execute("update drivers set currentstatus = %s where user_id = %s", [4, current_user.get_id()])
+    except Exception as e:
+        print(e)
     print("off duty")
     return jsonify(result="Off Duty")
 

@@ -32,13 +32,13 @@ eld_post_parser.add_argument(
 
 eld_post_parser.add_argument(
     'longitude',
-    type=int,
+    type=str,
     required=False,
     help="Need current longitude"
 )
 eld_post_parser.add_argument(
     'latitude',
-    type=int,
+    type=str,
     required = False,
     action='append'
 )
